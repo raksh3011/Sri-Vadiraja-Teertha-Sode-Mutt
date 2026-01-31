@@ -5,7 +5,8 @@ export default function LoginScreen({ navigation }: any) {
 
   const fakeLogin = () => {
     // Temporary login
-    navigation.replace('Home');
+    navigation.replace('Tabs');
+
   };
 
   return (
