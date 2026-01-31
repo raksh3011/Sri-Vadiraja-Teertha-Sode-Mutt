@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { AuthContext } from '../../sode-mutt-app/context/AuthContext';
+import { AuthContext } from '../../sode-mutt-app/src/context/AuthContext';
 
 import Login from '../screens/LoginScreen';
 import Home from '../screens/HomeScreen';
