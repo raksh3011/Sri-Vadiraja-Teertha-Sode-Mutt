@@ -1,11 +1,12 @@
 import React from 'react';
-import { AuthProvider } from './src/context/AuthContext';
+import { SafeAreaView, StatusBar } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
   return (
-    <AuthProvider>
+    <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" />
       <AppNavigator />
-    </AuthProvider>
+    </SafeAreaView>
   );
 }
