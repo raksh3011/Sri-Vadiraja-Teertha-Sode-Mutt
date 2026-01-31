@@ -1,36 +1,43 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, Alert } from 'react-native';
 
 import {
-  FirebaseRecaptchaVerifierModal
-} from 'expo-firebase-recaptcha';
-
-import {
   PhoneAuthProvider,
-  signInWithCredential
+  signInWithCredential,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
 } from 'firebase/auth';
 
 import { auth } from '../config/firebase';
 
 export default function LoginScreen() {
 
-  const recaptchaVerifier = useRef<any>(null);
-
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  const [verificationId, setVerificationId] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState<any>(null);
+
+  useEffect(() => {
+    if (!global.recaptchaVerifier) {
+      global.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        'recaptcha-container',
+        {
+          size: 'invisible',
+        }
+      );
+    }
+  }, []);
 
   // Send OTP
   const sendOTP = async () => {
     try {
-      const provider = new PhoneAuthProvider(auth);
-
-      const id = await provider.verifyPhoneNumber(
+      const result = await signInWithPhoneNumber(
+        auth,
         phone,
-        recaptchaVerifier.current
+        global.recaptchaVerifier
       );
 
-      setVerificationId(id);
+      setConfirmation(result);
       Alert.alert('OTP Sent');
 
     } catch (e: any) {
@@ -41,15 +48,7 @@ export default function LoginScreen() {
   // Verify OTP
   const verifyOTP = async () => {
     try {
-      if (!verificationId) return;
-
-      const credential = PhoneAuthProvider.credential(
-        verificationId,
-        otp
-      );
-
-      await signInWithCredential(auth, credential);
-
+      await confirmation.confirm(otp);
     } catch {
       Alert.alert('Invalid OTP');
     }
@@ -58,11 +57,8 @@ export default function LoginScreen() {
   return (
     <View style={{ padding: 20 }}>
 
-      {/* Recaptcha */}
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={auth.app.options}
-      />
+      {/* Required for Recaptcha */}
+      <View id="recaptcha-container" />
 
       <Text style={{ fontSize: 24, textAlign: 'center' }}>
         Sode Mutt Login
@@ -78,7 +74,7 @@ export default function LoginScreen() {
 
       <Button title="Send OTP" onPress={sendOTP} />
 
-      {verificationId && (
+      {confirmation && (
         <>
           <TextInput
             placeholder="Enter OTP"
